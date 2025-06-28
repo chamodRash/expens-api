@@ -50,24 +50,25 @@ export async function getTransactionSummary(req, res) {
       return res.status(400).json({ message: "User ID is required" });
     }
 
-    const summary = await sql`
-            SELECT category, COALESCE(SUM(amount), 0) AS balance, COUNT(*) AS count
-            FROM transactions
-            WHERE user_id = ${userId}
-            GROUP BY category
-            ORDER BY balance, count DESC
-        `;
+    const [row] = await sql`
+      SELECT
+        COALESCE(SUM(CASE WHEN amount > 0 THEN amount ELSE 0 END), 0) AS income,
+        COALESCE(SUM(CASE WHEN amount < 0 THEN amount ELSE 0 END), 0) AS expenses,
+        COALESCE(SUM(amount), 0) AS balance
+      FROM transactions
+      WHERE user_id = ${userId}
+    `;
 
-    if (summary.length === 0) {
+    if (!row) {
       return res
         .status(404)
         .json({ message: "No transactions found for this user" });
     }
 
     res.status(200).json({
-      balance: summary.reduce((acc, curr) => acc + parseFloat(curr.balance), 0),
-      income: summary[1].balance || 0,
-      expenses: summary[0].balance || 0,
+      income: parseFloat(row.income),
+      expenses: parseFloat(row.expenses),
+      balance: parseFloat(row.balance),
     });
   } catch (error) {
     console.error("Error fetching transaction summary:", error);
