@@ -13,11 +13,11 @@ const port = process.env.PORT || 5001;
 app.use(rateLimiter);
 app.use(express.json());
 
+app.use("/api/transactions", transactionsRoute);
+
 app.use("/", (req, res) => {
   res.send("Welcome to the Balans | Expense Tracker API");
 });
-
-app.use("/api/transactions", transactionsRoute);
 
 connectToDatabase().then(() => {
   app.listen(port, () => {
