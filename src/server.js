@@ -14,7 +14,7 @@ app.use(rateLimiter);
 app.use(express.json());
 
 app.use("/", (req, res) => {
-  return "Welcome to the Balans | Expense Tracker API";
+  res.send("Welcome to the Balans | Expense Tracker API");
 });
 
 app.use("/api/transactions", transactionsRoute);
