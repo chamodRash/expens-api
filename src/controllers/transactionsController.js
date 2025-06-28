@@ -50,10 +50,6 @@ export async function getTransactionSummary(req, res) {
       return res.status(400).json({ message: "User ID is required" });
     }
 
-    if (isNaN(parseInt(userId))) {
-      return res.status(400).json({ message: "Invalid user ID" });
-    }
-
     const summary = await sql`
             SELECT category, COALESCE(SUM(amount), 0) AS balance, COUNT(*) AS count
             FROM transactions
